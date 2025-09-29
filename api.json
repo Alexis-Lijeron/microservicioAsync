@@ -1,0 +1,353 @@
+[
+    {
+        "url": "http://localhost:8000/api/v1/estudiantes",
+        "method": "GET"
+    },
+    {
+        "url": "http://localhost:8000/api/v1/estudiantes",
+        "method": "POST",
+        "body": {
+            "registro": "2180",
+            "nombre": "pablo",
+            "apellido": "lijeron",
+            "ci": "13431099",
+            "carrera_codigo": "INF187",
+            "contraseña": "as"
+        }
+    },
+    {
+        "url": "http://localhost:8000/api/v1/estudiantes/2180",
+        "method": "PUT",
+        "body": {
+            "nombre": "mario"
+        }
+    },
+    {
+        "url": "http://localhost:8000/api/v1/estudiantes/2180",
+        "method": "DELETE"
+    },
+    {
+        "url": "http://localhost:8000/api/v1/docentes",
+        "method": "GET"
+    },
+    {
+        "url": "http://localhost:8000/api/v1/docentes",
+        "method": "POST",
+        "body": {
+            "codigo_docente": "dcs",
+            "nombre": "dd",
+            "apellido": "stddring"
+        }
+    },
+    {
+        "url": "http://localhost:8000/api/v1/docentes/dcs",
+        "method": "PUT",
+        "body": {
+            "nombre": "ssss"
+        }
+    },
+    {
+        "url": "http://localhost:8000/api/v1/docentes/dcs",
+        "method": "DELETE"
+    },
+    {
+        "url": "http://localhost:8000/api/v1/carreras",
+        "method": "GET"
+    },
+    {
+        "url": "http://localhost:8000/api/v1/carreras",
+        "method": "POST",
+        "body": {
+            "codigo": "sis",
+            "nombre": "sistemas"
+        }
+    },
+    {
+        "url": "http://localhost:8000/api/v1/carreras/sis",
+        "method": "PUT",
+        "body": {
+            "nombre": "sistema 2"
+        }
+    },
+    {
+        "url": "http://localhost:8000/api/v1/carreras/sis",
+        "method": "DELETE"
+    },
+    {
+        "url": "http://localhost:8000/api/v1/materias",
+        "method": "GET"
+    },
+    {
+        "url": "http://localhost:8000/api/v1/materias",
+        "method": "POST",
+        "body": {
+            "sigla": "mat",
+            "nombre": "matematica",
+            "creditos": 4,
+            "es_electiva": false,
+            "nivel_codigo": "NIV01",
+            "plan_estudio_codigo": "PLAN-INF187"
+        }
+    },
+    {
+        "url": "http://localhost:8000/api/v1/materias/mat",
+        "method": "PUT",
+        "body": {
+            "es_electiva": true
+        }
+    },
+    {
+        "url": "http://localhost:8000/api/v1/materias/mat",
+        "method": "DELETE"
+    },
+    {
+        "url": "http://localhost:8000/api/v1/aulas",
+        "method": "GET"
+    },
+    {
+        "url": "http://localhost:8000/api/v1/aulas",
+        "method": "POST",
+        "body": {
+            "codigo_aula": "123",
+            "modulo": "ass",
+            "aula": "12"
+        }
+    },
+    {
+        "url": "http://localhost:8000/api/v1/aulas/123",
+        "method": "PUT",
+        "body": {
+            "modulo": "22",
+            "aula": "22"
+        }
+    },
+    {
+        "url": "http://localhost:8000/api/v1/aulas/123",
+        "method": "DELETE"
+    },
+    {
+        "url": "http://localhost:8000/api/v1/grupos",
+        "method": "GET"
+    },
+    {
+        "url": "http://localhost:8000/api/v1/grupos",
+        "method": "POST",
+        "body": {
+            "codigo_grupo": "GRP02",
+            "descripcion": "ss",
+            "docente_codigo": "DOC001",
+            "gestion_codigo": "GEST2025-1",
+            "materia_sigla": "MAT101",
+            "horario_codigo": "HOR001"
+        }
+    },
+    {
+        "url": "http://localhost:8000/api/v1/grupos/GRP02",
+        "method": "PUT",
+        "body": {
+            "descripcion": "123"
+        }
+    },
+    {
+        "url": "http://localhost:8000/api/v1/grupos/GRP02",
+        "method": "DELETE"
+    },
+    {
+        "url": "http://localhost:8000/api/v1/horarios",
+        "method": "GET"
+    },
+    {
+        "url": "http://localhost:8000/api/v1/horarios",
+        "method": "POST",
+        "body": {
+            "codigo_horario": "1234",
+            "dia": "martes",
+            "hora_inicio": "18:03:40",
+            "hora_final": "18:38:41",
+            "aula_codigo": "AUL236-31"
+        }
+    },
+    {
+        "url": "http://localhost:8000/api/v1/horarios/1234",
+        "method": "PUT",
+        "body": {
+            "dia": "lunes"
+        }
+    },
+    {
+        "url": "http://localhost:8000/api/v1/horarios/1234",
+        "method": "DELETE"
+    },
+    {
+        "url": "http://localhost:8000/api/v1/gestiones",
+        "method": "GET"
+    },
+    {
+        "url": "http://localhost:8000/api/v1/gestiones",
+        "method": "POST",
+        "body": {
+            "codigo_gestion": "123",
+            "semestre": 2,
+            "año": 2026
+        }
+    },
+    {
+        "url": "http://localhost:8000/api/v1/gestiones/123",
+        "method": "PUT",
+        "body": {
+            "semestre": 1
+        }
+    },
+    {
+        "url": "http://localhost:8000/api/v1/gestiones/123",
+        "method": "DELETE"
+    },
+    {
+        "url": "http://localhost:8000/api/v1/niveles",
+        "method": "GET"
+    },
+    {
+        "url": "http://localhost:8000/api/v1/niveles",
+        "method": "POST",
+        "body": {
+            "codigo_nivel": "12",
+            "nivel": 12
+        }
+    },
+    {
+        "url": "http://localhost:8000/api/v1/niveles/12",
+        "method": "PUT",
+        "body": {
+            "nivel": 20
+        }
+    },
+    {
+        "url": "http://localhost:8000/api/v1/niveles/12",
+        "method": "DELETE"
+    },
+    {
+        "url": "http://localhost:8000/api/v1/inscripciones",
+        "method": "GET"
+    },
+    {
+        "url": "http://localhost:8000/api/v1/inscripciones",
+        "method": "POST",
+        "body": {
+            "codigo_inscripcion": "1234",
+            "semestre": 1,
+            "gestion_codigo": "GEST2025-1",
+            "estudiante_registro": "CAR008",
+            "grupo_codigo": "GRP001"
+        }
+    },
+    {
+        "url": "http://localhost:8000/api/v1/inscripciones/1234",
+        "method": "PUT",
+        "body": {
+            "semestre": 2
+        }
+    },
+    {
+        "url": "http://localhost:8000/api/v1/inscripciones/1234",
+        "method": "DELETE"
+    },
+    {
+        "url": "http://localhost:8000/api/v1/notas",
+        "method": "GET"
+    },
+    {
+        "url": "http://localhost:8000/api/v1/notas",
+        "method": "POST",
+        "body": {
+            "codigo_nota": "12",
+            "nota": 0,
+            "estudiante_registro": "DAN007"
+        }
+    },
+    {
+        "url": "http://localhost:8000/api/v1/notas/12",
+        "method": "PUT",
+        "body": {
+            "nota": 100
+        }
+    },
+    {
+        "url": "http://localhost:8000/api/v1/notas/12",
+        "method": "DELETE"
+    },
+    {
+        "url": "http://localhost:8000/api/v1/detalles",
+        "method": "GET"
+    },
+    {
+        "url": "http://localhost:8000/api/v1/detalles",
+        "method": "POST",
+        "body": {
+            "codigo_detalle": "12",
+            "fecha": "2025-09-25",
+            "hora": "19:11:49.377Z",
+            "grupo_codigo": "GRP001"
+        }
+    },
+    {
+        "url": "http://localhost:8000/api/v1/detalles/12",
+        "method": "PUT",
+        "body": {
+            "fecha": "2025-09-25",
+            "hora": "19:16:02.275Z"
+        }
+    },
+    {
+        "url": "http://localhost:8000/api/v1/detalles/12",
+        "method": "DELETE"
+    },
+    {
+        "url": "http://localhost:8000/api/v1/planes_estudio",
+        "method": "GET"
+    },
+    {
+        "url": "http://localhost:8000/api/v1/planes_estudio",
+        "method": "POST",
+        "body": {
+            "codigo": "12",
+            "cant_semestre": 2,
+            "plan": "xd",
+            "carrera_codigo": "INF187"
+        }
+    },
+    {
+        "url": "http://localhost:8000/api/v1/planes_estudio/12",
+        "method": "PUT",
+        "body": {
+            "cant_semestre": 3
+        }
+    },
+    {
+        "url": "http://localhost:8000/api/v1/planes_estudio/12",
+        "method": "DELETE"
+    },
+    {
+        "url": "http://localhost:8000/api/v1/prerrequisitos",
+        "method": "GET"
+    },
+    {
+        "url": "http://localhost:8000/api/v1/prerrequisitos",
+        "method": "POST",
+        "body": {
+            "codigo_prerrequisito": "12",
+            "materia_sigla": "INF120",
+            "sigla_prerrequisito": "MAT101"
+        }
+    },
+    {
+        "url": "http://localhost:8000/api/v1/prerrequisitos/12",
+        "method": "PUT",
+        "body": {
+            "sigla_prerrequisito": "INF433"
+        }
+    },
+    {
+        "url": "http://localhost:8000/api/v1/prerrequisitos/12",
+        "method": "DELETE"
+    }
+]
