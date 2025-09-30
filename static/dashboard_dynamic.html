@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 Sistema de Colas Dinámico - Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .connection-status {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: #f44336;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            z-index: 1000;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .status-bar {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+        }
+
+        .status-item {
+            text-align: center;
+        }
+
+        .status-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+            display: block;
+        }
+
+        .status-label {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .control-panel {
+            background: rgba(255,255,255,0.95);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        .btn-primary { background: #007bff; }
+        .btn-success { background: #28a745; }
+        .btn-warning { background: #ffc107; color: #212529; }
+        .btn-danger { background: #dc3545; }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .input-group input, .input-group select {
+            padding: 6px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            margin-bottom: 20px;
+        }
+
+        .card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .queues-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+        }
+
+        .queue-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 15px;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+
+        .queue-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .queue-card.critical {
+            border-color: #dc3545;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+        }
+
+        .queue-card.high {
+            border-color: #fd7e14;
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+        }
+
+        .queue-card.normal {
+            border-color: #28a745;
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        }
+
+        .queue-card.bulk {
+            border-color: #6c757d;
+            background: linear-gradient(135deg, #d299c2 0%, #fef9d7 100%);
+        }
+
+        .queue-card.dynamic {
+            border-color: #6f42c1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .queue-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .queue-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .queue-type {
+            font-size: 0.8rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.3);
+        }
+
+        .queue-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .workers-container {
+            margin-top: 15px;
+        }
+
+        .workers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+            gap: 5px;
+            margin-top: 8px;
+        }
+
+        .worker-card {
+            background: #4CAF50;
+            color: white;
+            padding: 6px;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 0.7rem;
+            transition: all 0.3s ease;
+        }
+
+        .worker-card.idle { background: #9E9E9E; }
+        .worker-card.active { background: #2196F3; animation: pulse 2s infinite; }
+        .worker-card.busy { background: #FF9800; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+        }
+
+        .task-queue {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .task-item {
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            background: #f8f9fa;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .task-item.processing {
+            background: #e3f2fd;
+            border-color: #2196f3;
+        }
+
+        .task-item.completed {
+            background: #e8f5e8;
+            border-color: #4caf50;
+        }
+
+        .task-item.failed {
+            background: #ffebee;
+            border-color: #f44336;
+        }
+
+        .task-priority {
+            background: #667eea;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+        }
+
+        .events-container {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .event-item {
+            padding: 8px;
+            border-left: 4px solid;
+            margin-bottom: 8px;
+            background: #f8f9fa;
+            border-radius: 0 6px 6px 0;
+            font-size: 0.9rem;
+        }
+
+        .event-item.success { border-color: #28a745; }
+        .event-item.error { border-color: #dc3545; }
+        .event-item.info { border-color: #17a2b8; }
+
+        .event-time {
+            font-size: 0.7rem;
+            color: #666;
+            float: right;
+        }
+
+        .event-type {
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="connection-status" id="connectionStatus">
+        🔴 Desconectado
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Sistema de Colas Dinámico - SIN LÍMITES</h1>
+            <div class="subtitle">
+                ✨ Escalado Ilimitado • 🗑️ Eliminación Universal • 🔧 Creación Automática • 📊 Monitoreo en Tiempo Real
+            </div>
+        </div>
+
+        <div class="status-bar" id="statusBar">
+            <div class="status-item">
+                <span class="status-value" id="systemType">Dynamic</span>
+                <div class="status-label">Tipo de Sistema</div>
+            </div>
+            <div class="status-item">
+                <span class="status-value" id="totalWorkers">0</span>
+                <div class="status-label">Workers Totales</div>
+            </div>
+            <div class="status-item">
+                <span class="status-value" id="totalQueues">0</span>
+                <div class="status-label">Colas Activas</div>
+            </div>
+            <div class="status-item">
+                <span class="status-value" id="pendingTasks">0</span>
+                <div class="status-label">Tareas Pendientes</div>
+            </div>
+            <div class="status-item">
+                <span class="status-value" id="processingTasks">0</span>
+                <div class="status-label">En Proceso</div>
+            </div>
+            <div class="status-item">
+                <span class="status-value" id="completedTasks">0</span>
+                <div class="status-label">Completadas</div>
+            </div>
+            <div class="status-item">
+                <span class="status-value" id="scalingEvents">0</span>
+                <div class="status-label">Escalados</div>
+            </div>
+        </div>
+
+        <div class="control-panel">
+            <div class="control-group">
+                <button class="btn btn-primary" onclick="toggleAutoRefresh()">
+                    <span id="autoRefreshText">🔄 Auto Refresh ON</span>
+                </button>
+                <button class="btn btn-success" onclick="refreshData()">🔃 Actualizar</button>
+            </div>
+            
+            <div class="control-group">
+                <label>Escalar Cola Específica:</label>
+                <div class="input-group">
+                    <select id="queueSelect">
+                        <option value="">Seleccionar cola...</option>
+                    </select>
+                    <input type="number" id="workerCount" placeholder="Workers" min="0" max="100" style="width: 80px;">
+                    <button class="btn btn-warning" onclick="scaleQueue()">⚡ Escalar</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <button class="btn btn-primary" onclick="showAdvancedCreateModal()">🚀 Crear N Colas</button>
+                <button class="btn btn-success" onclick="showCreateQueueModal()">➕ Una Cola</button>
+                <button class="btn btn-danger" onclick="clearEvents()">🗑️ Limpiar Log</button>
+            </div>
+        </div>
+
+        <!-- Panel Avanzado de Creación -->
+        <div class="card" style="margin-bottom: 20px;">
+            <h3>🎛️ Control Avanzado de Colas</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">Creación Rápida:</label>
+                    <div style="display: flex; gap: 5px; margin-bottom: 10px;">
+                        <input type="number" id="quickCreateCount" placeholder="Cantidad" min="1" max="20" style="width: 80px; padding: 4px;">
+                        <button class="btn btn-primary" onclick="createMultipleQueues()" style="font-size: 0.8rem;">Crear N Colas</button>
+                    </div>
+                    <div style="display: flex; gap: 5px;">
+                        <input type="number" id="quickWorkerCount" placeholder="Workers" min="1" max="50" style="width: 80px; padding: 4px;">
+                        <button class="btn btn-success" onclick="scallAllQueues()" style="font-size: 0.8rem;">Escalar Todas</button>
+                    </div>
+                </div>
+                
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">Plantillas:</label>
+                    <button class="btn btn-primary" onclick="createDevelopmentSetup()" style="width: 100%; margin-bottom: 5px; font-size: 0.8rem;">🔧 Setup Desarrollo</button>
+                    <button class="btn btn-warning" onclick="createProductionSetup()" style="width: 100%; margin-bottom: 5px; font-size: 0.8rem;">🏭 Setup Producción</button>
+                    <button class="btn btn-danger" onclick="createTestingSetup()" style="width: 100%; font-size: 0.8rem;">🧪 Setup Testing</button>
+                </div>
+                
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">Acciones Masivas:</label>
+                    <button class="btn btn-success" onclick="startAllQueues()" style="width: 100%; margin-bottom: 5px; font-size: 0.8rem;">▶️ Iniciar Todas</button>
+                    <button class="btn btn-warning" onclick="pauseAllQueues()" style="width: 100%; margin-bottom: 5px; font-size: 0.8rem;">⏸️ Pausar Todas</button>
+                    <button class="btn btn-danger" onclick="deleteAllDynamicQueues()" style="width: 100%; font-size: 0.8rem;">🗑️ Eliminar Dinámicas</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Colas Dinámicas -->
+        <div class="card">
+            <h3>🔄 Colas del Sistema</h3>
+            <div class="queues-grid" id="queuesGrid">
+                <div class="queue-card">
+                    <div style="text-align: center; color: #666; padding: 20px;">
+                        Cargando colas del sistema...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="card">
+                <h3>📋 Tareas Recientes</h3>
+                <div class="task-queue" id="taskQueue">
+                    <div class="task-item">
+                        <div>
+                            <strong>Cargando...</strong><br>
+                            <small>Obteniendo datos del sistema</small>
+                        </div>
+                        <span class="task-priority">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>📊 Métricas por Prioridad</h3>
+                <div id="priorityStats">
+                    <div style="text-align: center; color: #666;">
+                        Cargando estadísticas...
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>📝 Log de Eventos</h3>
+                <div class="events-container" id="eventsContainer">
+                    <div class="event-item info">
+                        <div class="event-time">Sistema</div>
+                        <div class="event-type">Info</div>
+                        <div>Iniciando dashboard dinámico...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ACCESS_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTg5MjQ2NDAsInN1YiI6IlZJQzAwMSJ9.6s2ah2WMT39BhUbVOXgN2AVJp05L1Q7bZDeCaFXn-xc";
+
+        class DynamicQueueDashboard {
+            constructor() {
+                this.apiBaseUrl = 'http://localhost:8000/queue';
+                this.autoRefresh = true;
+                this.refreshInterval = 3000;
+                this.maxEvents = 50;
+                this.refreshTimer = null;
+                this.queuesData = {};
+
+                this.init();
+            }
+
+            async init() {
+                console.log('🚀 Iniciando Dashboard Dinámico...');
+                await this.checkConnection();
+                await this.loadInitialData();
+                this.startAutoRefresh();
+                this.addEvent('Sistema', 'Dashboard iniciado correctamente', 'success');
+            }
+
+            async checkConnection() {
+                try {
+                    const response = await fetch(`${this.apiBaseUrl}/status`, {
+                        headers: { "Authorization": `Bearer ${ACCESS_TOKEN}` }
+                    });
+
+                    if (response.ok) {
+                        this.updateConnectionStatus(true);
+                        console.log('✅ Conexión establecida con sistema dinámico');
+                        return true;
+                    } else {
+                        throw new Error('Error de conexión');
+                    }
+                } catch (error) {
+                    this.updateConnectionStatus(false);
+                    console.error('❌ Error de conexión:', error);
+                    return false;
+                }
+            }
+
+            async loadInitialData() {
+                await Promise.all([
+                    this.updateSystemStats(),
+                    this.updateQueuesData(),
+                    this.updateTasksList(),
+                    this.updatePriorityStats()
+                ]);
+            }
+
+            async updateSystemStats() {
+                try {
+                    const response = await fetch(`${this.apiBaseUrl}/status`, {
+                        headers: { "Authorization": `Bearer ${ACCESS_TOKEN}` }
+                    });
+                    if (!response.ok) throw new Error('Error fetching stats');
+
+                    const stats = await response.json();
+                    this.updateStatusBar(stats);
+
+                } catch (error) {
+                    console.error('Error actualizando estadísticas:', error);
+                }
+            }
+
+            async updateQueuesData() {
+                try {
+                    const response = await fetch(`${this.apiBaseUrl}/queues/all`, {
+                        headers: { "Authorization": `Bearer ${ACCESS_TOKEN}` }
+                    });
+                    if (!response.ok) throw new Error('Error fetching queues');
+
+                    const data = await response.json();
+                    this.queuesData = data;
+                    this.updateQueuesGrid(data);
+                    this.updateQueueSelect(data);
+
+                } catch (error) {
+                    console.error('Error actualizando colas:', error);
+                }
+            }
+
+            async updateTasksList() {
+                try {
+                    const response = await fetch(`${this.apiBaseUrl}/tasks?page_size=10`, {
+                        headers: { "Authorization": `Bearer ${ACCESS_TOKEN}` }
+                    });
+                    if (!response.ok) throw new Error('Error fetching tasks');
+
+                    const data = await response.json();
+                    this.updateTasksQueue(data.data || []);
+
+                } catch (error) {
+                    console.error('Error actualizando tareas:', error);
+                }
+            }
+
+            async updatePriorityStats() {
+                try {
+                    const response = await fetch(`${this.apiBaseUrl}/status`, {
+                        headers: { "Authorization": `Bearer ${ACCESS_TOKEN}` }
+                    });
+                    if (!response.ok) throw new Error('Error fetching priority stats');
+
+                    const data = await response.json();
+                    this.updatePriorityStatsDisplay(data.priority_counts || {});
+
+                } catch (error) {
+                    console.error('Error actualizando estadísticas de prioridad:', error);
+                }
+            }
+
+            updateStatusBar(stats) {
+                document.getElementById('systemType').textContent = stats.system_type || 'Dynamic';
+                document.getElementById('totalWorkers').textContent = stats.total_workers || 0;
+                document.getElementById('totalQueues').textContent = stats.total_queues || 0;
+
+                const taskCounts = stats.task_counts || {};
+                document.getElementById('pendingTasks').textContent = taskCounts.pending || 0;
+                document.getElementById('processingTasks').textContent = taskCounts.processing || 0;
+                document.getElementById('completedTasks').textContent = taskCounts.completed || 0;
+                document.getElementById('scalingEvents').textContent = stats.dynamic_scaling_events || 0;
+            }
+
+            updateQueuesGrid(data) {
+                const grid = document.getElementById('queuesGrid');
+                if (!data.success) return;
+
+                const allQueues = { ...data.predefined_queues, ...data.dynamic_queues };
+                
+                grid.innerHTML = Object.keys(allQueues).map(queueKey => {
+                    const queue = allQueues[queueKey];
+                    const config = queue.config;
+                    const queueClass = this.getQueueClass(queueKey, queue.is_predefined);
+                    
+                    return `
+                        <div class="queue-card ${queueClass}">
+                            <div class="queue-header">
+                                <div class="queue-name">${config.name}</div>
+                                <div class="queue-type">${queue.is_predefined ? 'Predefinida' : 'Dinámica'}</div>
+                            </div>
+                            <div class="queue-stats">
+                                <div class="stat-item">
+                                    <span class="stat-value">${queue.active_workers || 0}</span>
+                                    <div class="stat-label">Workers</div>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-value">${queue.pending_tasks || 0}</span>
+                                    <div class="stat-label">Pendientes</div>
+                                </div>
+                            </div>
+                            <div class="workers-container">
+                                <small>Prioridades: ${config.priority_range.join('-')} | Max: SIN LÍMITE</small>
+                                <div class="workers-grid">
+                                    ${this.generateWorkerCards(queue.workers || [])}
+                                </div>
+                            </div>
+                            <!-- TODAS las colas son eliminables ahora -->
+                            <div style="display: flex; gap: 5px; margin-top: 10px;">
+                                <button class="btn btn-danger" style="flex: 1; font-size:0.8rem;" 
+                                        onclick="removeQueue('${queueKey}', ${queue.is_predefined})">
+                                    🗑️ Eliminar ${queue.is_predefined ? '(Predefinida)' : '(Dinámica)'}
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            getQueueClass(queueKey, isPredefined) {
+                if (!isPredefined) return 'dynamic';
+                
+                const classMap = {
+                    '1': 'critical',
+                    '2': 'high', 
+                    '3': 'normal',
+                    '4': 'bulk'
+                };
+                return classMap[queueKey] || 'normal';
+            }
+
+            generateWorkerCards(workers) {
+                if (!workers.length) return '<div class="worker-card idle">0</div>';
+                
+                return workers.map((workerId, index) => 
+                    `<div class="worker-card active">${index + 1}</div>`
+                ).join('');
+            }
+
+            updateTasksQueue(tasks) {
+                const queue = document.getElementById('taskQueue');
+                
+                if (!tasks.length) {
+                    queue.innerHTML = '<div style="text-align:center; color:#666; padding:20px;">No hay tareas recientes</div>';
+                    return;
+                }
+
+                queue.innerHTML = tasks.slice(0, 10).map(task => {
+                    const queueName = this.getQueueNameByPriority(task.priority);
+                    const taskTypeDisplay = this.formatTaskType(task.task_type);
+                    const statusIcon = this.getStatusIcon(task.status);
+                    const timeDisplay = task.completed_at ? 
+                        `Completada: ${new Date(task.completed_at).toLocaleTimeString()}` :
+                        `Creada: ${new Date(task.created_at || task.scheduled_at).toLocaleTimeString()}`;
+                    
+                    return `
+                        <div class="task-item ${task.status}">
+                            <div style="flex: 1;">
+                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                                    <span>${statusIcon}</span>
+                                    <strong>${taskTypeDisplay}</strong>
+                                </div>
+                                <div style="font-size: 0.8rem; color: #666;">
+                                    <div>Cola: <span style="color: #667eea; font-weight: 500;">${queueName}</span></div>
+                                    <div>${timeDisplay}</div>
+                                    ${task.processing_time ? `<div>Tiempo: ${task.processing_time}ms</div>` : ''}
+                                </div>
+                            </div>
+                            <div style="display: flex; flex-direction: column; align-items: end; gap: 4px;">
+                                <span class="task-priority">P${task.priority}</span>
+                                ${task.status === 'failed' && task.error ? 
+                                    `<span style="font-size: 0.7rem; color: #dc3545;" title="${task.error}">⚠️ Error</span>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            getQueueNameByPriority(priority) {
+                if (priority <= 2) return "🔴 Critical";
+                if (priority === 3) return "🟠 High";
+                if (priority >= 4 && priority <= 5) return "🟢 Normal";
+                if (priority >= 6 && priority <= 10) return "⚫ Bulk";
+                return "🟣 Dynamic";
+            }
+
+            formatTaskType(taskType) {
+                // Convertir task_type a formato más legible
+                const formatted = taskType
+                    .replace(/_/g, ' ')
+                    .replace(/\b\w/g, l => l.toUpperCase());
+                
+                // Agregar emojis según el tipo
+                if (taskType.includes('inscripcion')) return '📝 ' + formatted;
+                if (taskType.includes('estudiante')) return '👨‍🎓 ' + formatted;
+                if (taskType.includes('docente')) return '👨‍🏫 ' + formatted;
+                if (taskType.includes('materia')) return '📚 ' + formatted;
+                if (taskType.includes('grupo')) return '👥 ' + formatted;
+                if (taskType.includes('nota')) return '📊 ' + formatted;
+                if (taskType.includes('horario')) return '🕐 ' + formatted;
+                if (taskType.includes('carrera')) return '🎓 ' + formatted;
+                
+                return '📋 ' + formatted;
+            }
+
+            getStatusIcon(status) {
+                switch(status) {
+                    case 'completed': return '✅';
+                    case 'processing': return '⏳';
+                    case 'failed': return '❌';
+                    case 'pending': return '⏱️';
+                    default: return '📝';
+                }
+            }
+
+            updatePriorityStatsDisplay(priorityCounts) {
+                const container = document.getElementById('priorityStats');
+                
+                if (!Object.keys(priorityCounts).length) {
+                    container.innerHTML = '<div style="text-align:center; color:#666;">No hay tareas pendientes por prioridad</div>';
+                    return;
+                }
+
+                container.innerHTML = Object.entries(priorityCounts)
+                    .sort(([a], [b]) => parseInt(a) - parseInt(b))
+                    .map(([priority, count]) => `
+                        <div style="display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid #eee;">
+                            <span>Prioridad ${priority}:</span>
+                            <strong>${count} tareas</strong>
+                        </div>
+                    `).join('');
+            }
+
+            updateQueueSelect(data) {
+                const select = document.getElementById('queueSelect');
+                const allQueues = { ...data.predefined_queues, ...data.dynamic_queues };
+                
+                select.innerHTML = '<option value="">Seleccionar cola...</option>' +
+                    Object.keys(allQueues).map(queueKey => {
+                        const queue = allQueues[queueKey];
+                        return `<option value="${queue.config.name}">${queue.config.name} (${queue.active_workers || 0}/${queue.config.max_workers})</option>`;
+                    }).join('');
+            }
+
+            startAutoRefresh() {
+                if (this.autoRefresh && !this.refreshTimer) {
+                    this.refreshTimer = setInterval(() => {
+                        this.loadInitialData();
+                    }, this.refreshInterval);
+                    console.log('🔄 Auto-refresh iniciado');
+                }
+            }
+
+            stopAutoRefresh() {
+                if (this.refreshTimer) {
+                    clearInterval(this.refreshTimer);
+                    this.refreshTimer = null;
+                    console.log('⏹️ Auto-refresh detenido');
+                }
+            }
+
+            updateConnectionStatus(connected) {
+                const status = document.getElementById('connectionStatus');
+                if (connected) {
+                    status.textContent = '🟢 Conectado';
+                    status.style.backgroundColor = '#4CAF50';
+                } else {
+                    status.textContent = '🔴 Desconectado';
+                    status.style.backgroundColor = '#f44336';
+                }
+            }
+
+            addEvent(type, message, level = 'info') {
+                const container = document.getElementById('eventsContainer');
+                const eventDiv = document.createElement('div');
+                eventDiv.className = `event-item ${level}`;
+                
+                eventDiv.innerHTML = `
+                    <div class="event-time">${new Date().toLocaleTimeString()}</div>
+                    <div class="event-type">${type}</div>
+                    <div>${message}</div>
+                `;
+                
+                container.insertBefore(eventDiv, container.firstChild);
+                
+                // Limitar eventos mostrados
+                while (container.children.length > this.maxEvents) {
+                    container.removeChild(container.lastChild);
+                }
+            }
+
+            destroy() {
+                this.stopAutoRefresh();
+                console.log('🛑 Dashboard destruido');
+            }
+        }
+
+        // Funciones globales para los controles
+        let dashboard;
+
+        async function toggleAutoRefresh() {
+            dashboard.autoRefresh = !dashboard.autoRefresh;
+            document.getElementById('autoRefreshText').textContent = 
+                dashboard.autoRefresh ? '🔄 Auto Refresh ON' : '⏸️ Auto Refresh OFF';
+            
+            if (dashboard.autoRefresh) {
+                dashboard.startAutoRefresh();
+            } else {
+                dashboard.stopAutoRefresh();
+            }
+        }
+
+        async function refreshData() {
+            dashboard.addEvent('Usuario', 'Actualizando datos manualmente...', 'info');
+            await dashboard.loadInitialData();
+            dashboard.addEvent('Sistema', 'Datos actualizados', 'success');
+        }
+
+        async function scaleQueue() {
+            const queueName = document.getElementById('queueSelect').value;
+            const workerCount = document.getElementById('workerCount').value;
+            
+            if (!queueName || !workerCount) {
+                alert('Por favor selecciona una cola y especifica el número de workers');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${dashboard.apiBaseUrl}/workers/scale-by-name?queue_name=${queueName}&target_workers=${workerCount}`, {
+                    method: 'POST',
+                    headers: { "Authorization": `Bearer ${ACCESS_TOKEN}` }
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    dashboard.addEvent('Escalado', `Cola ${queueName} escalada a ${workerCount} workers`, 'success');
+                    await dashboard.updateQueuesData();
+                    await dashboard.updateSystemStats();
+                } else {
+                    throw new Error('Error en escalado');
+                }
+            } catch (error) {
+                dashboard.addEvent('Error', `Error escalando cola: ${error.message}`, 'error');
+            }
+        }
+
+        function showCreateQueueModal() {
+            const name = prompt('Nombre de la nueva cola:');
+            if (!name) return;
+            
+            const priorityMin = prompt('Prioridad mínima (1-20):', '11');
+            const priorityMax = prompt('Prioridad máxima (1-20):', '15');
+            const maxWorkers = prompt('Máximo workers (1-10):', '3');
+            
+            if (name && priorityMin && priorityMax && maxWorkers) {
+                createQueue(name, priorityMin, priorityMax, maxWorkers);
+            }
+        }
+
+        async function createQueue(name, priorityMin, priorityMax, maxWorkers) {
+            try {
+                const url = `${dashboard.apiBaseUrl}/queues/create?name=${encodeURIComponent(name)}&priority_min=${priorityMin}&priority_max=${priorityMax}&max_workers=${maxWorkers}`;
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { "Authorization": `Bearer ${ACCESS_TOKEN}` }
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    dashboard.addEvent('Cola', `Nueva cola '${name}' creada exitosamente`, 'success');
+                    await dashboard.updateQueuesData();
+                    await dashboard.updateSystemStats();
+                } else {
+                    throw new Error('Error creando cola');
+                }
+            } catch (error) {
+                dashboard.addEvent('Error', `Error creando cola: ${error.message}`, 'error');
+            }
+        }
+
+        async function removeQueue(queueId, isPredefined = false) {
+            const queueType = isPredefined ? 'PREDEFINIDA' : 'dinámica';
+            if (!confirm(`⚠️ ¿Estás seguro de eliminar esta cola ${queueType}?\n\n${isPredefined ? 'ADVERTENCIA: Esta es una cola del sistema principal.' : 'Esta acción no se puede deshacer.'}`)) return;
+            
+            try {
+                let response;
+                if (isPredefined) {
+                    // Eliminar cola predefinida
+                    response = await fetch(`${dashboard.apiBaseUrl}/queues/${queueId}`, {
+                        method: 'DELETE',
+                        headers: { "Authorization": `Bearer ${ACCESS_TOKEN}` }
+                    });
+                } else {
+                    // Eliminar cola dinámica
+                    response = await fetch(`${dashboard.apiBaseUrl}/queues/dynamic/${queueId}`, {
+                        method: 'DELETE',
+                        headers: { "Authorization": `Bearer ${ACCESS_TOKEN}` }
+                    });
+                }
+
+                if (response.ok) {
+                    const result = await response.json();
+                    dashboard.addEvent('Cola', `Cola ${queueType} eliminada: ${queueId}`, 'success');
+                    await dashboard.updateQueuesData();
+                    await dashboard.updateSystemStats();
+                } else {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.detail || 'Error eliminando cola');
+                }
+            } catch (error) {
+                dashboard.addEvent('Error', `Error eliminando cola ${queueType}: ${error.message}`, 'error');
+            }
+        }
+
+        function clearEvents() {
+            document.getElementById('eventsContainer').innerHTML = '';
+            dashboard.addEvent('Usuario', 'Log de eventos limpiado', 'info');
+        }
+
+        // ========================================
+        // FUNCIONES AVANZADAS DE CONTROL MASIVO
+        // ========================================
+
+        async function createMultipleQueues() {
+            const count = parseInt(document.getElementById('quickCreateCount').value);
+            if (!count || count < 1 || count > 20) {
+                alert('Por favor especifica un número válido de colas (1-20)');
+                return;
+            }
+
+            dashboard.addEvent('Sistema', `Creando ${count} colas dinámicas...`, 'info');
+            
+            let created = 0;
+            for (let i = 1; i <= count; i++) {
+                const name = `DynamicQueue_${Date.now()}_${i}`;
+                const priorityMin = 10 + i; // Prioridades secuenciales
+                const priorityMax = priorityMin + 1;
+                const maxWorkers = Math.ceil(Math.random() * 5) + 1; // 2-6 workers aleatorio
+                
+                try {
+                    const success = await createQueueInternal(name, priorityMin, priorityMax, maxWorkers);
+                    if (success) {
+                        created++;
+                        dashboard.addEvent('Cola', `✅ Cola ${i}/${count}: ${name}`, 'success');
+                        await new Promise(resolve => setTimeout(resolve, 200)); // Pequeña pausa
+                    }
+                } catch (error) {
+                    dashboard.addEvent('Error', `❌ Error en cola ${i}: ${error.message}`, 'error');
+                }
+            }
+            
+            dashboard.addEvent('Sistema', `🎉 Proceso completado: ${created}/${count} colas creadas`, created === count ? 'success' : 'error');
+            await dashboard.updateQueuesData();
+            await dashboard.updateSystemStats();
+        }
+
+        async function scallAllQueues() {
+            const workerCount = parseInt(document.getElementById('quickWorkerCount').value);
+            if (!workerCount || workerCount < 1 || workerCount > 50) {
+                alert('Por favor especifica un número válido de workers (1-50)');
+                return;
+            }
+
+            const queues = dashboard.queuesData;
+            if (!queues || !queues.success) {
+                alert('No se pueden obtener las colas. Actualiza primero.');
+                return;
+            }
+
+            dashboard.addEvent('Sistema', `Escalando todas las colas a ${workerCount} workers...`, 'info');
+            
+            const allQueues = { ...queues.predefined_queues, ...queues.dynamic_queues };
+            let scaled = 0;
+            
+            for (const [queueKey, queueInfo] of Object.entries(allQueues)) {
+                const queueName = queueInfo.config.name;
+                try {
+                    const success = await scaleQueueInternal(queueName, workerCount);
+                    if (success) {
+                        scaled++;
+                        dashboard.addEvent('Escalado', `✅ ${queueName}: ${workerCount} workers`, 'success');
+                    }
+                    await new Promise(resolve => setTimeout(resolve, 300)); // Pausa entre escalados
+                } catch (error) {
+                    dashboard.addEvent('Error', `❌ Error escalando ${queueName}: ${error.message}`, 'error');
+                }
+            }
+            
+            dashboard.addEvent('Sistema', `🎯 Escalado masivo completado: ${scaled}/${Object.keys(allQueues).length} colas`, 'success');
+            await dashboard.updateQueuesData();
+            await dashboard.updateSystemStats();
+        }
+
+        async function createDevelopmentSetup() {
+            dashboard.addEvent('Sistema', '🔧 Configurando entorno de desarrollo...', 'info');
+            
+            const devQueues = [
+                { name: 'Dev_Critical', priorityMin: 1, priorityMax: 2, workers: 3 },
+                { name: 'Dev_High', priorityMin: 3, priorityMax: 3, workers: 2 },
+                { name: 'Dev_Normal', priorityMin: 4, priorityMax: 5, workers: 2 },
+                { name: 'Dev_Testing', priorityMin: 15, priorityMax: 18, workers: 1 }
+            ];
+            
+            await createQueueSetup(devQueues, 'desarrollo');
+        }
+
+        async function createProductionSetup() {
+            dashboard.addEvent('Sistema', '🏭 Configurando entorno de producción...', 'info');
+            
+            const prodQueues = [
+                { name: 'Prod_Critical', priorityMin: 1, priorityMax: 2, workers: 8 },
+                { name: 'Prod_High', priorityMin: 3, priorityMax: 3, workers: 6 },
+                { name: 'Prod_Normal', priorityMin: 4, priorityMax: 5, workers: 4 },
+                { name: 'Prod_Bulk', priorityMin: 6, priorityMax: 10, workers: 3 },
+                { name: 'Prod_Background', priorityMin: 11, priorityMax: 15, workers: 2 }
+            ];
+            
+            await createQueueSetup(prodQueues, 'producción');
+        }
+
+        async function createTestingSetup() {
+            dashboard.addEvent('Sistema', '🧪 Configurando entorno de testing...', 'info');
+            
+            const testQueues = [
+                { name: 'Test_Fast', priorityMin: 1, priorityMax: 5, workers: 1 },
+                { name: 'Test_Medium', priorityMin: 6, priorityMax: 10, workers: 1 },
+                { name: 'Test_Slow', priorityMin: 11, priorityMax: 20, workers: 1 }
+            ];
+            
+            await createQueueSetup(testQueues, 'testing');
+        }
+
+        async function createQueueSetup(queues, setupName) {
+            let created = 0;
+            
+            for (const queue of queues) {
+                try {
+                    const success = await createQueueInternal(queue.name, queue.priorityMin, queue.priorityMax, queue.workers);
+                    if (success) {
+                        created++;
+                        dashboard.addEvent('Setup', `✅ ${queue.name} creada`, 'success');
+                    }
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                } catch (error) {
+                    dashboard.addEvent('Error', `❌ Error creando ${queue.name}: ${error.message}`, 'error');
+                }
+            }
+            
+            dashboard.addEvent('Sistema', `🎉 Setup ${setupName} completado: ${created}/${queues.length} colas`, 'success');
+            await dashboard.updateQueuesData();
+            await dashboard.updateSystemStats();
+        }
+
+        async function startAllQueues() {
+            dashboard.addEvent('Sistema', '▶️ Iniciando todas las colas...', 'info');
+            // Por ahora solo escalar a mínimo 1 worker
+            await scallAllQueues(1);
+        }
+
+        async function pauseAllQueues() {
+            dashboard.addEvent('Sistema', '⏸️ Pausando todas las colas...', 'info');
+            document.getElementById('quickWorkerCount').value = '0';
+            await scallAllQueues();
+        }
+
+        async function deleteAllDynamicQueues() {
+            if (!confirm('⚠️ ¿Estás seguro de eliminar TODAS las colas dinámicas?\n\nEsta acción no se puede deshacer.')) return;
+            
+            const queues = dashboard.queuesData;
+            if (!queues || !queues.success) {
+                alert('No se pueden obtener las colas. Actualiza primero.');
+                return;
+            }
+
+            dashboard.addEvent('Sistema', '🗑️ Eliminando todas las colas dinámicas...', 'info');
+            
+            const dynamicQueues = queues.dynamic_queues || {};
+            let deleted = 0;
+            
+            for (const [queueId, queueInfo] of Object.entries(dynamicQueues)) {
+                try {
+                    const response = await fetch(`${dashboard.apiBaseUrl}/queues/dynamic/${queueId}`, {
+                        method: 'DELETE',
+                        headers: { "Authorization": `Bearer ${ACCESS_TOKEN}` }
+                    });
+                    
+                    if (response.ok) {
+                        deleted++;
+                        dashboard.addEvent('Eliminación', `✅ ${queueInfo.config.name} eliminada`, 'success');
+                    }
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                } catch (error) {
+                    dashboard.addEvent('Error', `❌ Error eliminando ${queueInfo.config.name}: ${error.message}`, 'error');
+                }
+            }
+            
+            dashboard.addEvent('Sistema', `🧹 Limpieza completada: ${deleted}/${Object.keys(dynamicQueues).length} colas eliminadas`, 'success');
+            await dashboard.updateQueuesData();
+            await dashboard.updateSystemStats();
+        }
+
+        function showAdvancedCreateModal() {
+            const count = prompt('¿Cuántas colas quieres crear?', '5');
+            if (!count) return;
+            
+            const workers = prompt('¿Cuántos workers por cola?', '2');
+            if (!workers) return;
+            
+            document.getElementById('quickCreateCount').value = count;
+            document.getElementById('quickWorkerCount').value = workers;
+            
+            createMultipleQueues();
+        }
+
+        // Funciones internas auxiliares
+        async function createQueueInternal(name, priorityMin, priorityMax, maxWorkers) {
+            const url = `${dashboard.apiBaseUrl}/queues/create?name=${encodeURIComponent(name)}&priority_min=${priorityMin}&priority_max=${priorityMax}&max_workers=${maxWorkers}`;
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { "Authorization": `Bearer ${ACCESS_TOKEN}` }
+            });
+            return response.ok;
+        }
+
+        async function scaleQueueInternal(queueName, targetWorkers) {
+            const response = await fetch(`${dashboard.apiBaseUrl}/workers/scale-by-name?queue_name=${queueName}&target_workers=${targetWorkers}`, {
+                method: 'POST',
+                headers: { "Authorization": `Bearer ${ACCESS_TOKEN}` }
+            });
+            return response.ok;
+        }
+
+        // Inicializar dashboard cuando la página carga
+        document.addEventListener('DOMContentLoaded', () => {
+            dashboard = new DynamicQueueDashboard();
+        });
+
+        // Cleanup cuando se cierra la página
+        window.addEventListener('beforeunload', () => {
+            if (dashboard) dashboard.destroy();
+        });
+
+        console.log('🎯 Dashboard Dinámico cargado. Sistema de colas con escalado automático.');
+    </script>
+</body>
+
+</html>

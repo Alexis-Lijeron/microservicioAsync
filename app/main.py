@@ -79,13 +79,13 @@ async def lifespan(app: FastAPI):
         except Exception as redis_error:
             print(f"⚠️ Error con Redis: {redis_error}")
 
-        # 4. Iniciar sistema de colas optimizado (fallback)
-        print("🧵 Iniciando sistema de colas optimizado...")
+        # 4. Iniciar sistema de colas dinámico (nueva versión)
+        print("🧵 Iniciando sistema de colas dinámico...")
         try:
-            await optimized_thread_queue_manager.start(max_workers=9)  # Reducir workers
-            print("✅ Sistema de colas optimizado iniciado")
+            await optimized_thread_queue_manager.start(max_workers=8)  # Workers distribuidos por colas
+            print("✅ Sistema de colas dinámico iniciado")
         except Exception as queue_error:
-            print(f"⚠️ Error iniciando colas optimizadas: {queue_error}")
+            print(f"⚠️ Error iniciando colas dinámicas: {queue_error}")
 
         # 5. Limpiar sesiones expiradas
         try:
@@ -97,12 +97,24 @@ async def lifespan(app: FastAPI):
         except Exception as cleanup_error:
             print(f"⚠️ Error en limpieza de sesiones: {cleanup_error}")
 
-        # 6. Mostrar estadísticas de inicio
+        # 6. Mostrar estadísticas del sistema dinámico
         try:
             if optimized_thread_queue_manager.is_running():
                 stats = await optimized_thread_queue_manager.get_queue_stats()
-                print(f"🔧 Workers optimizados activos: {stats['total_workers']}")
-                print(f"📋 Tareas en cola: {stats['task_counts'].get('pending', 0)}")
+                print(f"🔧 Sistema de tipo: {stats.get('system_type', 'optimizado')}")
+                print(f"👥 Workers activos: {stats.get('total_workers', stats.get('active_workers', 0))}")
+                print(f"🔄 Colas activas: {stats.get('total_queues', 'N/A')}")
+                print(f"📋 Tareas pendientes: {stats['task_counts'].get('pending', 0)}")
+                
+                # Mostrar información de colas especializadas
+                if 'queue_details' in stats:
+                    print("📊 Colas especializadas:")
+                    for queue_name, queue_info in stats['queue_details'].items():
+                        workers = queue_info.get('active_workers', 0)
+                        max_workers = queue_info.get('max_workers', 0)
+                        priority_range = queue_info.get('priority_range', [])
+                        print(f"   🔹 {queue_name}: {workers}/{max_workers} workers, prioridades {priority_range}")
+                
                 print(f"📊 Última verificación BD: {stats.get('last_db_check', 'N/A')}")
         except Exception as stats_error:
             print(f"⚠️ Error obteniendo estadísticas: {stats_error}")
@@ -140,14 +152,28 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="Sistema Académico Corregido API",
+    title="Sistema Académico Dinámico API",
     description="""
-    ## Sistema Académico Corregido v2.1 🎓
+    ## Sistema Académico Dinámico v3.0 🎓
     
-    ### **Correcciones Implementadas:**
-    - 🔧 **ThreadQueue optimizado** - Menos consultas a BD
-    - 📄 **Paginación inteligente corregida** - Con fallbacks
-    - 🧹 **Limpieza de cola funcional** - Eliminación segura
+    ### **Nuevas Funcionalidades Dinámicas:**
+    - � **Sistema de Colas Dinámico** - 4+ colas especializadas por prioridad
+    - ⚡ **Escalado Automático** - Workers se ajustan según demanda
+    - 🎯 **Prioridades Inteligentes** - Basadas en tipos de endpoint
+    - 🔧 **Gestión en Tiempo Real** - Crear/eliminar colas sin reiniciar
+    - 📊 **Monitoreo Avanzado** - Estadísticas por cola y worker
+    
+    ### **Colas Especializadas:**
+    - 🔴 **Critical** - Prioridades 1-2 (Sistema, rollbacks, auth)
+    - 🟠 **High** - Prioridad 3 (Inscripciones, notas, horarios)  
+    - 🟡 **Normal** - Prioridades 4-5 (Estudiantes, docentes, materias)
+    - 🟢 **Bulk** - Prioridades 6-10 (Reportes, backups, operaciones masivas)
+    
+    ### **API Dinámicas:**
+    - `POST /queue/queues/create` - Crear colas personalizadas
+    - `POST /queue/workers/scale-by-name` - Escalar workers dinámicamente  
+    - `GET /queue/queues/all` - Ver todas las colas (predefinidas + dinámicas)
+    - `POST /queue/auto-distribute` - Distribuir prioridades automáticamente
     - 📊 **Monitoreo mejorado** - Estadísticas precisas
     - 🛡️ **Manejo de errores robusto** - Sistema resiliente
     

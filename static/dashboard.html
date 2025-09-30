@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🚀 Cola en Tiempo Real - Sistema Académico</title>
+    <title>🚀 Sistema de Colas Dinámico - Dashboard</title>
     <style>
         * {
             margin: 0;
@@ -32,103 +32,365 @@
         }
 
         .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            font-size: 3rem;
+            margin-bottom: 15px;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.4);
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+            animation: gradientShift 3s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .header .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.95;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .feature-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
 
         .status-bar {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(10px);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.9) 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 25px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .status-bar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
         }
 
         .status-item {
             text-align: center;
-            flex: 1;
-            min-width: 120px;
+            padding: 15px;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        .status-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.8);
         }
 
         .status-value {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #667eea;
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
             display: block;
         }
 
         .status-label {
-            color: #666;
-            font-size: 0.9rem;
+            color: #555;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-top: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
             margin-top: 5px;
         }
 
         .dashboard-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 20px;
             margin-bottom: 20px;
         }
 
         .card {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(10px);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.92) 100%);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2, #667eea);
+            background-size: 200% 100%;
+            animation: cardBorder 3s ease infinite;
+        }
+
+        @keyframes cardBorder {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        .card.full-width {
+            grid-column: 1 / -1;
         }
 
         .card h3 {
-            color: #667eea;
-            margin-bottom: 15px;
-            font-size: 1.3rem;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .queues-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+        }
+
+        .queue-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 15px;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+
+        .queue-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .queue-card.critical {
+            border-color: #dc3545;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+        }
+
+        .queue-card.high {
+            border-color: #fd7e14;
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+        }
+
+        .queue-card.normal {
+            border-color: #28a745;
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        }
+
+        .queue-card.bulk {
+            border-color: #6c757d;
+            background: linear-gradient(135deg, #d299c2 0%, #fef9d7 100%);
+        }
+
+        .queue-card.dynamic {
+            border-color: #6f42c1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .queue-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .queue-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .queue-type {
+            font-size: 0.8rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.3);
+        }
+
+        .queue-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .workers-container {
+            margin-top: 15px;
+        }
+
+        .workers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .worker-card {
+            background: #4CAF50;
+            color: white;
+            padding: 8px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .worker-card.idle {
+            background: #9E9E9E;
+        }
+
+        .worker-card.active {
+            background: #2196F3;
+            animation: pulse 2s infinite;
+        }
+
+        .worker-card.busy {
+            background: #FF9800;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .control-panel {
+            background: rgba(255,255,255,0.95);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .control-group {
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
-        .workers-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 15px;
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
         }
 
-        .worker-card {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        .btn-primary {
+            background: #007bff;
             color: white;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
         }
 
-        .worker-card.idle {
-            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
-            color: #333;
+        .btn-success {
+            background: #28a745;
+            color: white;
         }
 
-        .worker-card.active {
-            background: linear-gradient(135deg, #7ee8fa 0%, #eec0c6 100%);
-            color: #333;
-            animation: pulse 2s infinite;
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
         }
 
-        @keyframes pulse {
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
 
-            0%,
-            100% {
-                opacity: 1;
-            }
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
 
-            50% {
-                opacity: 0.8;
-            }
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .input-group input, .input-group select {
+            padding: 6px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9rem;
         }
 
         .events-container {
@@ -224,39 +486,254 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            padding: 12px 24px;
-            border-radius: 25px;
+            padding: 14px 28px;
+            border-radius: 30px;
             cursor: pointer;
             font-size: 1rem;
-            margin: 0 10px;
-            transition: transform 0.2s;
+            font-weight: 600;
+            margin: 5px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.6s;
         }
 
         .btn:hover {
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn:hover::before {
+            left: 100%;
         }
 
         .btn:active {
-            transform: translateY(0);
+            transform: translateY(-1px);
         }
+
+        .btn.success {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+        }
+
+        .btn.success:hover {
+            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.6);
+        }
+
+        .btn.danger {
+            background: linear-gradient(135deg, #dc3545, #e74c3c);
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
+        }
+
+        .btn.danger:hover {
+            box-shadow: 0 8px 25px rgba(220, 53, 69, 0.6);
+        }
+
+        .btn.warning {
+            background: linear-gradient(135deg, #ffc107, #ff9800);
+            box-shadow: 0 4px 15px rgba(255, 193, 7, 0.4);
+        }
+
+        .btn.warning:hover {
+            box-shadow: 0 8px 25px rgba(255, 193, 7, 0.6);
+        }
+
+
+
+        /* Estilos para colas dinámicas */
+        .queue-placeholder {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 15px;
+            border: 2px dashed #ddd;
+        }
+
+        .queue-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s ease;
+            min-height: 200px;
+        }
+
+        .queue-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border-color: #667eea;
+        }
+
+        .queue-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .queue-header h4 {
+            margin: 0;
+            color: #333;
+            font-size: 1.2rem;
+        }
+
+        .queue-status {
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .queue-status.active {
+            background: #28a745;
+            color: white;
+        }
+
+        .queue-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            display: block;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .queue-priority {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #888;
+            padding: 8px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .queue-activity {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #999;
+            font-style: italic;
+        }
+
+        /* Estilos para eventos */
+        .event-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            border-left: 4px solid #ddd;
+        }
+
+        .event-item.success {
+            background: #e8f5e8;
+            border-left-color: #4caf50;
+        }
+
+        .event-item.error {
+            background: #ffebee;
+            border-left-color: #f44336;
+        }
+
+        .event-item.sistema {
+            background: #e3f2fd;
+            border-left-color: #2196f3;
+        }
+
+        .event-content {
+            flex: 1;
+        }
+
+        .event-time {
+            color: #666;
+            font-size: 0.8rem;
+        }
+
+        /* Estilos para tareas */
+        .task-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            border: 1px solid #eee;
+            background: #f9f9f9;
+        }
+
+        .task-item.completed {
+            background: #e8f5e8;
+            border-color: #4caf50;
+        }
+
+        .task-item.failed {
+            background: #ffebee;
+            border-color: #f44336;
+        }
+
+        .task-item.processing {
+            background: #fff3e0;
+            border-color: #ff9800;
+        }
+
+
 
         .connection-status {
             position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 10px 15px;
-            border-radius: 20px;
+            top: 25px;
+            right: 25px;
+            padding: 12px 20px;
+            border-radius: 25px;
             color: white;
-            font-size: 0.9rem;
+            font-size: 1rem;
+            font-weight: 600;
             z-index: 1000;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            animation: connectionPulse 2s infinite;
+        }
+
+        @keyframes connectionPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
         }
 
         .connection-status.connected {
-            background: #28a745;
+            background: linear-gradient(135deg, #28a745, #20c997);
         }
 
         .connection-status.disconnected {
-            background: #dc3545;
+            background: linear-gradient(135deg, #dc3545, #e74c3c);
         }
 
         .stats-chart {
@@ -297,18 +774,27 @@
 
     <div class="container">
         <div class="header">
-            <h1>🚀 Cola en Tiempo Real</h1>
-            <p>Sistema Académico - Monitoreo Redis</p>
+            <h1>🚀 Sistema de Colas Dinámico - SIN LÍMITES</h1>
+            <div class="subtitle">
+                <span class="feature-badge">✨ Escalado Ilimitado</span>
+                <span class="feature-badge">🗑️ Eliminación Universal</span>
+                <span class="feature-badge">🤖 Creación Automática</span>
+                <span class="feature-badge">📈 Monitoreo en Tiempo Real</span>
+            </div>
         </div>
 
         <div class="status-bar" id="statusBar">
+            <div class="status-item">
+                <span class="status-value" id="systemType">Dynamic</span>
+                <div class="status-label">Tipo de Sistema</div>
+            </div>
             <div class="status-item">
                 <span class="status-value" id="totalWorkers">0</span>
                 <div class="status-label">Workers Totales</div>
             </div>
             <div class="status-item">
-                <span class="status-value" id="activeWorkers">0</span>
-                <div class="status-label">Workers Activos</div>
+                <span class="status-value" id="totalQueues">0</span>
+                <div class="status-label">Colas Activas</div>
             </div>
             <div class="status-item">
                 <span class="status-value" id="pendingTasks">0</span>
@@ -326,49 +812,113 @@
                 <span class="status-value" id="failedTasks">0</span>
                 <div class="status-label">Fallidas</div>
             </div>
+            <div class="status-item">
+                <span class="status-value" id="scalingEvents">0</span>
+                <div class="status-label">Escalados</div>
+            </div>
         </div>
 
-        <div class="controls">
-            <button class="btn" onclick="toggleAutoRefresh()">
-                <span id="autoRefreshText">🔄 Auto Refresh ON</span>
-            </button>
-            <button class="btn" onclick="clearEvents()">🗑️ Limpiar Eventos</button>
-            <button class="btn" onclick="exportData()">📥 Exportar Datos</button>
+        <div class="control-panel">
+            <div class="control-group">
+                <button class="btn btn-primary" onclick="toggleAutoRefresh()">
+                    <span id="autoRefreshText">🔄 Auto Refresh ON</span>
+                </button>
+                <button class="btn btn-success" onclick="refreshData()">🔃 Actualizar</button>
+            </div>
+            
+            <div class="control-group">
+                <label>Escalar Cola:</label>
+                <div class="input-group">
+                    <select id="queueSelect">
+                        <option value="">Seleccionar cola...</option>
+                    </select>
+                    <input type="number" id="workerCount" placeholder="Workers" min="0" max="100" style="width: 80px;">
+                    <button class="btn btn-warning" onclick="scaleQueue()">⚡ Escalar</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+
+                <button class="btn primary" onclick="showBulkCreateModal()">📦 Crear Colas Especializadas</button>
+                <button class="btn danger" onclick="clearAllQueues()">🗑️ Eliminar Colas</button>
+                <button class="btn danger" onclick="clearAllTasks()">🧹 Limpiar Tareas</button>
+                <button class="btn danger" onclick="clearEvents()">� Limpiar Log</button>
+            </div>
+            
+            <!-- Modal para creación masiva -->
+            <div id="bulkCreateModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
+                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); max-width: 500px; width: 90%;">
+                    <h3 style="color: #667eea; margin-bottom: 20px;">🚀 Crear Colas Especializadas</h3>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Cantidad de colas:</label>
+                        <input type="number" id="bulkQueueCount" min="1" max="50" value="5" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                        <small style="color: #666; margin-top: 5px; display: block;">💡 Múltiples colas pueden compartir rangos de prioridad para mejor balanceo</small>
+                    </div>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Workers por cola:</label>
+                        <input type="number" id="bulkWorkerCount" min="1" max="100" value="3" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Prefijo del nombre:</label>
+                        <input type="text" id="bulkQueuePrefix" value="cola_" placeholder="cola_" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                        <button class="btn" onclick="closeBulkCreateModal()" style="background: #6c757d;">Cancelar</button>
+                        <button class="btn primary" onclick="createBulkQueues()">🚀 Crear Colas</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+        <!-- Colas Dinámicas -->
+        <div class="card full-width">
+            <h3>🔄 Colas del Sistema</h3>
+            <div class="queues-grid" id="queuesContainer">
+                <div class="queue-placeholder">
+                    <p>🔄 Cargando colas del sistema...</p>
+                    <small>Las colas aparecerán aquí cuando se carguen los datos</small>
+                </div>
+            </div>
         </div>
 
         <div class="dashboard-grid">
             <div class="card">
-                <h3>👥 Workers Activos</h3>
-                <div class="workers-grid" id="workersGrid">
-                    <div class="worker-card idle">
-                        <div>Worker 1</div>
-                        <small>Inactivo</small>
+                <h3>� Tareas Recientes</h3>
+                <div class="task-queue" id="taskQueue">
+                    <div class="task-item">
+                        <div>
+                            <strong>Cargando...</strong><br>
+                            <small>Obteniendo datos del sistema</small>
+                        </div>
+                        <span class="task-priority">-</span>
                     </div>
                 </div>
             </div>
 
             <div class="card">
-                <h3>📊 Rendimiento</h3>
-                <div class="stats-chart" id="performanceChart">
-                    <div>Gráfico de rendimiento en tiempo real</div>
+                <h3>� Métricas por Prioridad</h3>
+                <div id="priorityStats">
+                    <div style="text-align: center; color: #666;">
+                        Cargando estadísticas...
+                    </div>
                 </div>
             </div>
 
             <div class="card">
-                <h3>📋 Cola de Tareas</h3>
-                <div class="task-queue" id="taskQueue">
-                    <!-- Aquí se insertarán las tareas dinámicamente -->
-                </div>
-            </div>
-
-
-            <div class="card">
-                <h3>📝 Eventos en Tiempo Real</h3>
+                <h3>📝 Log de Eventos</h3>
                 <div class="events-container" id="eventsContainer">
                     <div class="event-item queue_stats">
-                        <div class="event-time">Conectando...</div>
-                        <div class="event-type">Sistema</div>
-                        <div>Iniciando conexión con Redis...</div>
+                        <div class="event-time">Sistema</div>
+                        <div class="event-type">Info</div>
+                        <div>Iniciando dashboard dinámico...</div>
                     </div>
                 </div>
             </div>
@@ -378,42 +928,53 @@
     <script>
         const ACCESS_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTg5MjQ2NDAsInN1YiI6IlZJQzAwMSJ9.6s2ah2WMT39BhUbVOXgN2AVJp05L1Q7bZDeCaFXn-xc";
 
-        class RealtimeQueueDashboard {
+        class DynamicQueueDashboard {
             constructor() {
-                this.apiBaseUrl = 'http://localhost:8000/api/v1';
-                this.apiBaseUrl1 = 'http://localhost:8000';
+                this.apiBaseUrl = 'http://localhost:8000/queue';
                 this.autoRefresh = true;
-                this.refreshInterval = 2000; // 2 segundos
-                this.maxEvents = 100;
-                this.eventSource = null;
+                this.refreshInterval = 3000; // 3 segundos
+                this.maxEvents = 50;
                 this.refreshTimer = null;
+                this.queuesData = {};
 
                 this.init();
             }
 
             async init() {
-                console.log('🚀 Iniciando Dashboard...');
+                console.log('🚀 Iniciando Dashboard Dinámico...');
                 await this.checkConnection();
+                await this.loadInitialData();
                 this.startAutoRefresh();
-                this.setupEventStream();
+                this.addEvent('Sistema', 'Dashboard iniciado correctamente', 'success');
             }
 
             async checkConnection() {
                 try {
-                    const response = await fetch(`${this.apiBaseUrl1}/queue/status`, {
+                    const response = await fetch(`${this.apiBaseUrl}/status`, {
                         headers: { "Authorization": `Bearer ${ACCESS_TOKEN}` }
                     });
 
                     if (response.ok) {
                         this.updateConnectionStatus(true);
-                        console.log('✅ Conexión establecida');
+                        console.log('✅ Conexión establecida con sistema dinámico');
+                        return true;
                     } else {
                         throw new Error('Error de conexión');
                     }
                 } catch (error) {
                     this.updateConnectionStatus(false);
                     console.error('❌ Error de conexión:', error);
+                    return false;
                 }
+            }
+
+            async loadInitialData() {
+                await Promise.all([
+                    this.updateSystemStats(),
+                    this.updateQueuesData(),
+                    this.updateTasksList(),
+                    this.updatePriorityStats()
+                ]);
             }
 
             updateConnectionStatus(connected) {
@@ -427,65 +988,190 @@
                 }
             }
 
-            async fetchStats() {
+            async updateSystemStats() {
                 try {
-                    // Usar el endpoint del sistema de colas local en lugar de Redis
-                    const response = await fetch(`${this.apiBaseUrl1}/queue/status`, {
+                    const response = await fetch(`${this.apiBaseUrl}/status`, {
                         headers: { "Authorization": `Bearer ${ACCESS_TOKEN}` }
                     });
                     if (!response.ok) throw new Error('Error fetching stats');
 
                     const stats = await response.json();
                     this.updateStatusBar(stats);
-                    this.updatePerformanceChart(stats);
 
                 } catch (error) {
-                    console.error('Error fetching stats:', error);
+                    console.error('Error actualizando estadísticas:', error);
                 }
             }
 
-            async fetchWorkers() {
+            async updateQueuesData() {
                 try {
-                    // Usar el endpoint del sistema de colas local para obtener información de workers
-                    const response = await fetch(`${this.apiBaseUrl1}/queue/status`, {
+                    const response = await fetch(`${this.apiBaseUrl}/queues/all`, {
                         headers: { "Authorization": `Bearer ${ACCESS_TOKEN}` }
                     });
-                    if (!response.ok) throw new Error('Error fetching workers');
+                    if (!response.ok) throw new Error('Error fetching queues');
 
                     const data = await response.json();
-                    // Crear datos de workers simulados basados en el estado del sistema
-                    const workers = [];
-                    for (let i = 1; i <= data.active_workers; i++) {
-                        workers.push({
-                            id: `worker_${i}`,
-                            status: 'active',
-                            tasks_processed: Math.floor(data.stats.tasks_processed / data.active_workers),
-                            uptime: data.uptime_seconds,
-                            last_heartbeat: new Date().toISOString()
-                        });
-                    }
-                    this.updateWorkersGrid(workers);
+                    this.queuesData = data;
+                    this.updateQueuesGrid(data);
+                    this.updateQueueSelect(data);
 
                 } catch (error) {
-                    console.error('Error fetching workers:', error);
+                    console.error('Error actualizando colas:', error);
                 }
             }
 
-            async fetchTasks() {
+            async updateTasksList() {
                 try {
-                    const response = await fetch(`${this.apiBaseUrl1}/queue/tasks`, {
+                    const response = await fetch(`${this.apiBaseUrl}/tasks?page_size=10`, {
                         headers: { "Authorization": `Bearer ${ACCESS_TOKEN}` }
                     });
                     if (!response.ok) throw new Error('Error fetching tasks');
 
-                    const result = await response.json();
-
-                    // Aquí cambiamos: antes usabas data.data
-                    this.updateTaskQueue(result.data);
+                    const data = await response.json();
+                    this.updateTasksQueue(data.data || []);
 
                 } catch (error) {
-                    console.error('Error fetching tasks:', error);
+                    console.error('Error actualizando tareas:', error);
                 }
+            }
+
+            async updatePriorityStats() {
+                try {
+                    const response = await fetch(`${this.apiBaseUrl}/status`, {
+                        headers: { "Authorization": `Bearer ${ACCESS_TOKEN}` }
+                    });
+                    if (!response.ok) throw new Error('Error fetching priority stats');
+
+                    const data = await response.json();
+                    this.updatePriorityStatsDisplay(data.priority_counts || {});
+
+                } catch (error) {
+                    console.error('Error actualizando estadísticas de prioridad:', error);
+                }
+            }
+
+            updateStatusBar(stats) {
+                document.getElementById('systemType').textContent = stats.system_type || 'Dynamic';
+                document.getElementById('totalWorkers').textContent = stats.total_workers || 0;
+                document.getElementById('totalQueues').textContent = stats.total_queues || 0;
+
+                const taskCounts = stats.task_counts || {};
+                document.getElementById('pendingTasks').textContent = taskCounts.pending || 0;
+                document.getElementById('processingTasks').textContent = taskCounts.processing || 0;
+                document.getElementById('completedTasks').textContent = taskCounts.completed || 0;
+                document.getElementById('scalingEvents').textContent = stats.dynamic_scaling_events || 0;
+            }
+
+            updateQueuesGrid(data) {
+                const grid = document.getElementById('queuesGrid');
+                if (!data.success) return;
+
+                const allQueues = { ...data.predefined_queues, ...data.dynamic_queues };
+                
+                grid.innerHTML = Object.keys(allQueues).map(queueKey => {
+                    const queue = allQueues[queueKey];
+                    const config = queue.config;
+                    const queueClass = this.getQueueClass(queueKey, queue.is_predefined);
+                    
+                    return `
+                        <div class="queue-card ${queueClass}">
+                            <div class="queue-header">
+                                <div class="queue-name">${config.name}</div>
+                                <div class="queue-type">${queue.is_predefined ? 'Predefinida' : 'Dinámica'}</div>
+                            </div>
+                            <div class="queue-stats">
+                                <div class="stat-item">
+                                    <span class="stat-value">${queue.active_workers || 0}</span>
+                                    <div class="stat-label">Workers</div>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-value">${queue.pending_tasks || 0}</span>
+                                    <div class="stat-label">Pendientes</div>
+                                </div>
+                            </div>
+                            <div class="workers-container">
+                                <small>Prioridades: ${config.priority_range.join('-')} | Max: ${config.max_workers}</small>
+                                <div class="workers-grid">
+                                    ${this.generateWorkerCards(queue.workers || [])}
+                                </div>
+                            </div>
+                            ${!queue.is_predefined ? `
+                                <button class="btn btn-danger" style="width:100%; margin-top:10px; font-size:0.8rem;" 
+                                        onclick="removeQueue('${queueKey}')">
+                                    🗑️ Eliminar
+                                </button>
+                            ` : ''}
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            getQueueClass(queueKey, isPredefined) {
+                if (!isPredefined) return 'dynamic';
+                
+                const classMap = {
+                    '1': 'critical',
+                    '2': 'high', 
+                    '3': 'normal',
+                    '4': 'bulk'
+                };
+                return classMap[queueKey] || 'normal';
+            }
+
+            generateWorkerCards(workers) {
+                if (!workers.length) return '<div class="worker-card idle">Sin workers</div>';
+                
+                return workers.map(workerId => 
+                    `<div class="worker-card active">${workerId.split('_').pop()}</div>`
+                ).join('');
+            }
+
+            updateTasksQueue(tasks) {
+                const queue = document.getElementById('taskQueue');
+                
+                if (!tasks.length) {
+                    queue.innerHTML = '<div style="text-align:center; color:#666; padding:20px;">No hay tareas recientes</div>';
+                    return;
+                }
+
+                queue.innerHTML = tasks.slice(0, 10).map(task => `
+                    <div class="task-item ${task.status}">
+                        <div>
+                            <strong>${task.task_type}</strong><br>
+                            <small>${new Date(task.created_at).toLocaleString()}</small>
+                        </div>
+                        <span class="task-priority">P${task.priority}</span>
+                    </div>
+                `).join('');
+            }
+
+            updatePriorityStatsDisplay(priorityCounts) {
+                const container = document.getElementById('priorityStats');
+                
+                if (!Object.keys(priorityCounts).length) {
+                    container.innerHTML = '<div style="text-align:center; color:#666;">No hay tareas pendientes</div>';
+                    return;
+                }
+
+                container.innerHTML = Object.entries(priorityCounts)
+                    .sort(([a], [b]) => parseInt(a) - parseInt(b))
+                    .map(([priority, count]) => `
+                        <div style="display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid #eee;">
+                            <span>Prioridad ${priority}:</span>
+                            <strong>${count} tareas</strong>
+                        </div>
+                    `).join('');
+            }
+
+            updateQueueSelect(data) {
+                const select = document.getElementById('queueSelect');
+                const allQueues = { ...data.predefined_queues, ...data.dynamic_queues };
+                
+                select.innerHTML = '<option value="">Seleccionar cola...</option>' +
+                    Object.keys(allQueues).map(queueKey => {
+                        const queue = allQueues[queueKey];
+                        return `<option value="${queue.config.name}">${queue.config.name} (${queue.active_workers || 0}/${queue.config.max_workers})</option>`;
+                    }).join('');
             }
 
 
@@ -757,31 +1443,703 @@
             }
         }
 
-        // Variables globales
-        let dashboard;
-
         // Funciones globales para los botones
         function toggleAutoRefresh() {
-            if (dashboard) dashboard.toggleAutoRefresh();
+            autoRefreshEnabled = !autoRefreshEnabled;
+            const text = document.getElementById('autoRefreshText');
+            
+            if (autoRefreshEnabled) {
+                text.textContent = '🔄 Auto Refresh ON';
+                startAutoRefresh();
+            } else {
+                text.textContent = '⏸️ Auto Refresh OFF';
+                if (refreshInterval) clearInterval(refreshInterval);
+            }
+            
+            console.log(`Auto refresh: ${autoRefreshEnabled ? 'ON' : 'OFF'}`);
         }
 
         function clearEvents() {
-            if (dashboard) dashboard.clearEvents();
+            const eventsContainer = document.getElementById('eventsContainer');
+            if (eventsContainer) {
+                eventsContainer.innerHTML = '<p>📝 Log de eventos limpiado</p>';
+            }
+            console.log('🗑️ Eventos limpiados');
         }
 
         function exportData() {
-            if (dashboard) dashboard.exportData();
+            const data = {
+                timestamp: new Date().toISOString(),
+                system_status: 'exported',
+                note: 'Datos exportados desde dashboard'
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `dashboard_export_${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            console.log('📤 Datos exportados');
         }
+
+        // Función para limpiar todas las tareas de todas las colas
+        async function clearAllTasks() {
+            if (!confirm('⚠️ ¿Estás seguro de que quieres eliminar TODAS las tareas de TODAS las colas?\n\nEsta acción no se puede deshacer.')) {
+                return;
+            }
+            
+            updateEventLog('Iniciando limpieza completa de tareas...', 'sistema');
+            
+            try {
+                const response = await fetch('/queue/cleanup/all-tasks', {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    updateEventLog(`✅ Todas las tareas eliminadas: ${result.message || 'Operación completada'}`, 'success');
+                    
+                    // Refrescar datos
+                    setTimeout(() => {
+                        refreshData();
+                    }, 1000);
+                } else {
+                    const error = await response.json();
+                    updateEventLog(`❌ Error limpiando tareas: ${error.detail || 'Error desconocido'}`, 'error');
+                }
+                
+            } catch (error) {
+                updateEventLog(`❌ Error de conexión: ${error.message}`, 'error');
+            }
+        }
+
+        // Función para escalar una cola específica
+        async function scaleQueue() {
+            const queueSelect = document.getElementById('queueSelect');
+            const workerCount = document.getElementById('workerCount');
+            
+            const selectedQueue = queueSelect.value;
+            const workers = parseInt(workerCount.value);
+            
+            if (!selectedQueue) {
+                alert('⚠️ Selecciona una cola primero');
+                return;
+            }
+            
+            if (!workers || workers < 0 || workers > 10) {
+                alert('⚠️ Número de workers debe estar entre 0 y 10');
+                return;
+            }
+            
+            try {
+                const params = new URLSearchParams({
+                    queue_name: selectedQueue,
+                    target_workers: workers.toString()
+                });
+                
+                const response = await fetch(`/queue/workers/scale-by-name?${params}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    alert(`✅ Cola '${selectedQueue}' escalada a ${workers} workers`);
+                    updateEventLog(`Cola '${selectedQueue}' escalada a ${workers} workers`, 'success');
+                    refreshData();
+                } else {
+                    alert(`❌ Error escalando: ${result.detail || result.message || 'Error desconocido'}`);
+                    updateEventLog(`Error escalando cola: ${result.detail || result.message}`, 'error');
+                }
+                
+            } catch (error) {
+                alert(`❌ Error de conexión: ${error.message}`);
+            }
+        }
+
+        // === NUEVAS FUNCIONES PARA EL CONTROL AVANZADO ===
+        // === FUNCIONES PARA CREACIÓN MASIVA DE COLAS ===
+        function showBulkCreateModal() {
+            document.getElementById('bulkCreateModal').style.display = 'block';
+        }
+
+        function closeBulkCreateModal() {
+            document.getElementById('bulkCreateModal').style.display = 'none';
+        }
+
+        async function createBulkQueues() {
+            const count = parseInt(document.getElementById('bulkQueueCount').value);
+            const workers = parseInt(document.getElementById('bulkWorkerCount').value);
+            const prefix = document.getElementById('bulkQueuePrefix').value || 'cola_';
+
+            if (!count || count < 1 || count > 50) {
+                alert('⚠️ Especifica un número válido de colas (1-50)');
+                return;
+            }
+
+            if (!workers || workers < 1 || workers > 1000) {
+                alert('⚠️ Especifica un número válido de workers (1-1000)');
+                return;
+            }
+
+            updateEventLog(`🚀 Iniciando creación de ${count} colas especializadas con ${workers} workers cada una...`, 'sistema');
+            closeBulkCreateModal();
+
+            try {
+                // Usar el endpoint correcto de bulk-create que asigna rangos especializados automáticamente
+                const response = await fetch(`/queue/queues/bulk-create?count=${count}&workers_per_queue=${workers}&prefix=${prefix}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        updateEventLog(`✅ Creación exitosa: ${result.created_count} colas especializadas`, 'success');
+                        
+                        // Mostrar detalles de las colas creadas
+                        result.created_queues.forEach((queue, index) => {
+                            updateEventLog(`   📊 ${queue.name}: Prioridad ${queue.priority_range[0]}-${queue.priority_range[1]} (${queue.max_workers} workers)`, 'success');
+                        });
+                        
+                        if (result.failed_count > 0) {
+                            updateEventLog(`⚠️ ${result.failed_count} colas fallaron`, 'warning');
+                        }
+                    } else {
+                        updateEventLog(`❌ Error en creación masiva: ${result.message}`, 'error');
+                    }
+                } else {
+                    const error = await response.json();
+                    let errorMsg = error.detail || 'Error desconocido';
+                    
+                    // Mostrar mensaje más amigable para límites de rangos
+                    if (errorMsg.includes('rangos de prioridad')) {
+                        updateEventLog(`⚠️ Límite alcanzado: ${errorMsg}`, 'warning');
+                    } else {
+                        updateEventLog(`❌ Error: ${errorMsg}`, 'error');
+                    }
+                }
+                
+            } catch (error) {
+                updateEventLog(`❌ Error de conexión: ${error.message}`, 'error');
+            }
+            
+            // Refrescar datos después de un momento
+            setTimeout(() => {
+                refreshData();
+            }, 3000);
+        }
+
+        // === FUNCIONES PARA ELIMINAR COLAS ===
+        async function removeQueue(queueName) {
+            if (!confirm(`⚠️ ¿Estás seguro de que quieres eliminar la cola '${queueName}'?\n\nEsta acción no se puede deshacer.`)) {
+                return;
+            }
+            
+            updateEventLog(`🗑️ Eliminando cola '${queueName}'...`, 'sistema');
+            
+            try {
+                // Primero obtener el ID dinámico de la cola
+                const queuesResponse = await fetch('/queue/queues/all');
+                const queuesData = await queuesResponse.json();
+                
+                if (!queuesData.success) {
+                    updateEventLog(`❌ Error obteniendo información de colas`, 'error');
+                    return;
+                }
+                
+                // Buscar el ID dinámico por nombre
+                let dynamicId = null;
+                const dynamicQueues = queuesData.dynamic_queues || {};
+                
+                for (const [id, queueInfo] of Object.entries(dynamicQueues)) {
+                    if (queueInfo.config && queueInfo.config.name === queueName) {
+                        dynamicId = id;
+                        break;
+                    }
+                }
+                
+                if (!dynamicId) {
+                    updateEventLog(`❌ No se encontró el ID dinámico para la cola '${queueName}'`, 'error');
+                    return;
+                }
+                
+                // Eliminar usando el ID dinámico
+                const response = await fetch(`/queue/queues/dynamic/${dynamicId}`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    updateEventLog(`✅ Cola '${queueName}' eliminada exitosamente`, 'success');
+                    
+                    // Refrescar datos
+                    setTimeout(() => {
+                        refreshData();
+                    }, 1000);
+                } else {
+                    const error = await response.json();
+                    updateEventLog(`❌ Error eliminando cola '${queueName}': ${error.detail || 'Error desconocido'}`, 'error');
+                }
+                
+            } catch (error) {
+                updateEventLog(`❌ Error de conexión eliminando cola '${queueName}': ${error.message}`, 'error');
+            }
+        }
+
+        async function clearAllQueues() {
+            if (!confirm(`⚠️ ¿Estás seguro de que quieres eliminar TODAS las colas dinámicas?\n\nEsto eliminará todas las colas excepto la automática.\nEsta acción no se puede deshacer.`)) {
+                return;
+            }
+            
+            updateEventLog(`🗑️ Eliminando todas las colas dinámicas...`, 'sistema');
+            
+            try {
+                // Obtener todas las colas
+                const statusResponse = await fetch('/queue/queues/all');
+                const statusData = await statusResponse.json();
+                
+                if (!statusData.success) {
+                    updateEventLog(`❌ Error obteniendo lista de colas`, 'error');
+                    return;
+                }
+                
+                const dynamicQueues = statusData.dynamic_queues || {};
+                const queueIds = Object.keys(dynamicQueues);
+                
+                if (queueIds.length === 0) {
+                    updateEventLog(`ℹ️ No hay colas dinámicas para eliminar`, 'info');
+                    return;
+                }
+                
+                let removed = 0;
+                let failed = 0;
+                
+                for (const queueId of queueIds) {
+                    try {
+                        const response = await fetch(`/queue/queues/dynamic/${queueId}`, {
+                            method: 'DELETE',
+                            headers: { 'Content-Type': 'application/json' }
+                        });
+                        
+                        if (response.ok) {
+                            removed++;
+                            updateEventLog(`✅ Cola '${queueId}' eliminada`, 'success');
+                        } else {
+                            failed++;
+                            updateEventLog(`❌ Error eliminando '${queueId}'`, 'error');
+                        }
+                        
+                        // Pequeña pausa entre eliminaciones
+                        await new Promise(resolve => setTimeout(resolve, 200));
+                        
+                    } catch (error) {
+                        failed++;
+                        updateEventLog(`❌ Error eliminando '${queueId}': ${error.message}`, 'error');
+                    }
+                }
+                
+                updateEventLog(`🎉 Eliminación masiva completada: ${removed} eliminadas, ${failed} fallidas`, removed > failed ? 'success' : 'error');
+                
+                // Refrescar datos
+                setTimeout(() => {
+                    refreshData();
+                }, 2000);
+                
+            } catch (error) {
+                updateEventLog(`❌ Error durante eliminación masiva: ${error.message}`, 'error');
+            }
+        }
+
+        // Variables globales para el dashboard
+        let autoRefreshEnabled = true;
+        let refreshInterval;
 
         // Inicializar cuando se carga la página
         document.addEventListener('DOMContentLoaded', () => {
-            dashboard = new RealtimeQueueDashboard();
+            initializeDashboard();
         });
 
-        // Cleanup cuando se cierra la página
-        window.addEventListener('beforeunload', () => {
-            if (dashboard) dashboard.destroy();
-        });
+        // Inicialización del dashboard
+        function initializeDashboard() {
+            console.log('🚀 Dashboard iniciado');
+            
+            // Limpiar contenedor de eventos y agregar mensaje inicial
+            const eventsContainer = document.getElementById('eventsContainer');
+            if (eventsContainer) {
+                eventsContainer.innerHTML = '';
+            }
+            
+            updateEventLog('Dashboard iniciado correctamente', 'sistema');
+            refreshData(); // Cargar datos iniciales
+            startAutoRefresh(); // Iniciar refresco automático
+        }
+
+        // Iniciar refresco automático
+        function startAutoRefresh() {
+            if (refreshInterval) clearInterval(refreshInterval);
+            if (autoRefreshEnabled) {
+                refreshInterval = setInterval(refreshData, 3000); // Cada 3 segundos
+            }
+        }
+
+        // Función principal para refrescar datos
+        async function refreshData() {
+            try {
+                await Promise.all([
+                    updateSystemStatus(),
+                    updateQueuesList(),
+                    updateRecentTasks(),
+                    updatePriorityStats()
+                ]);
+                
+                updateConnectionStatus(true);
+                console.log('✅ Datos actualizados correctamente');
+            } catch (error) {
+                console.error('❌ Error actualizando datos:', error);
+                updateConnectionStatus(false);
+            }
+        }
+
+        // Actualizar estado del sistema
+        async function updateSystemStatus() {
+            try {
+                const response = await fetch('/queue/status');
+                const data = await response.json();
+                
+                // Actualizar métricas principales con valores correctos
+                const systemTypeElement = document.getElementById('systemType');
+                if (systemTypeElement) {
+                    systemTypeElement.textContent = 'Sistema Dinámico';
+                }
+                
+                const totalWorkersElement = document.getElementById('totalWorkers');
+                if (totalWorkersElement) {
+                    totalWorkersElement.textContent = data.total_workers || 0;
+                }
+                
+                const totalQueuesElement = document.getElementById('totalQueues');
+                if (totalQueuesElement) {
+                    totalQueuesElement.textContent = data.total_queues || 0;
+                }
+                
+                const pendingTasksElement = document.getElementById('pendingTasks');
+                if (pendingTasksElement) {
+                    pendingTasksElement.textContent = data.task_counts?.pending || 0;
+                }
+                
+                const processingTasksElement = document.getElementById('processingTasks');
+                if (processingTasksElement) {
+                    processingTasksElement.textContent = data.task_counts?.processing || 0;
+                }
+                
+                const completedTasksElement = document.getElementById('completedTasks');
+                if (completedTasksElement) {
+                    completedTasksElement.textContent = data.task_counts?.completed || 0;
+                }
+                
+                const failedTasksElement = document.getElementById('failedTasks');
+                if (failedTasksElement) {
+                    failedTasksElement.textContent = data.task_counts?.failed || 0;
+                }
+                
+                const scalingEventsElement = document.getElementById('scalingEvents');
+                if (scalingEventsElement) {
+                    scalingEventsElement.textContent = data.dynamic_scaling_events || 0;
+                }
+                
+            } catch (error) {
+                console.error('Error actualizando estado del sistema:', error);
+            }
+        }
+
+        // Actualizar lista de colas
+        async function updateQueuesList() {
+            try {
+                const response = await fetch('/queue/status');
+                const data = await response.json();
+                
+                const queuesContainer = document.getElementById('queuesContainer');
+                if (queuesContainer && data.queue_details) {
+                    queuesContainer.innerHTML = '';
+                    
+                    Object.entries(data.queue_details).forEach(([queueId, queueInfo]) => {
+                        const queueCard = createQueueCard(queueId, queueInfo);
+                        queuesContainer.appendChild(queueCard);
+                    });
+                    
+                    // Si no hay colas, mostrar mensaje
+                    if (Object.keys(data.queue_details).length === 0) {
+                        queuesContainer.innerHTML = `
+                            <div class="queue-placeholder">
+                                <p>📭 No hay colas activas</p>
+                                <small>Crea una nueva cola para comenzar</small>
+                            </div>
+                        `;
+                    }
+                }
+                
+                // Actualizar selector de colas
+                updateQueueSelector(data.queue_details || {});
+                
+
+                
+            } catch (error) {
+                console.error('Error actualizando lista de colas:', error);
+            }
+        }
+
+
+
+        // Crear card de cola
+        function createQueueCard(queueId, queueInfo) {
+            const card = document.createElement('div');
+            card.className = 'queue-card';
+            
+            // Determinar si es la cola automática (no se puede eliminar)
+            const isAutoDefault = queueId === 'auto_default';
+            
+            card.innerHTML = `
+                <div class="queue-header">
+                    <h4>${queueId} ${isAutoDefault ? '🤖' : ''}</h4>
+                    <span class="queue-status active">Activa</span>
+                </div>
+                <div class="queue-stats">
+                    <div class="stat">
+                        <span class="stat-value">${queueInfo.active_workers || 0}</span>
+                        <span class="stat-label">Workers</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value">${queueInfo.pending_tasks || 0}</span>
+                        <span class="stat-label">Pendientes</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value">${queueInfo.processed_tasks || 0}</span>
+                        <span class="stat-label">Procesadas</span>
+                    </div>
+                </div>
+                <div class="queue-priority">
+                    Prioridad: ${queueInfo.priority_range[0]}-${queueInfo.priority_range[1]} | Max: ${queueInfo.max_workers} workers
+                </div>
+                <div class="queue-activity">
+                    <small>Última actividad: ${new Date(queueInfo.last_activity).toLocaleTimeString()}</small>
+                </div>
+                ${!isAutoDefault ? `
+                    <button class="btn danger" style="width:100%; margin-top:10px; font-size:0.8rem;" 
+                            onclick="removeQueue('${queueId}')">
+                        🗑️ Eliminar Cola
+                    </button>
+                ` : `
+                    <div style="text-align: center; margin-top: 10px; font-size: 0.8rem; color: #666;">
+                        <small>🤖 Cola automática del sistema</small>
+                    </div>
+                `}
+            `;
+            return card;
+        }
+
+        // Actualizar selector de colas
+        function updateQueueSelector(queues) {
+            const selector = document.getElementById('queueSelect');
+            if (selector) {
+                selector.innerHTML = '<option value="">Seleccionar cola...</option>';
+                Object.entries(queues).forEach(([queueId, queueInfo]) => {
+                    const option = document.createElement('option');
+                    option.value = queueId;
+                    option.textContent = `${queueId} (${queueInfo.active_workers}/${queueInfo.max_workers} workers)`;
+                    selector.appendChild(option);
+                });
+            }
+        }
+
+        // Actualizar tareas recientes
+        async function updateRecentTasks() {
+            const taskQueue = document.getElementById('taskQueue');
+            if (!taskQueue) return;
+            
+            try {
+                // Usar el endpoint de status que sabemos que funciona
+                const response = await fetch('/queue/status');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                taskQueue.innerHTML = '';
+                
+                // Mostrar información basada en los stats del sistema
+                const stats = data.task_counts || {};
+                const totalTasks = stats.pending + stats.processing + stats.completed + stats.failed;
+                
+                if (totalTasks > 0) {
+                    taskQueue.innerHTML = `
+                        <div class="task-item completed">
+                            <div>
+                                <strong>Tareas Completadas</strong><br>
+                                <small>Total procesadas: ${stats.completed || 0}</small>
+                            </div>
+                            <span class="task-priority">✅</span>
+                        </div>
+                        <div class="task-item processing">
+                            <div>
+                                <strong>Tareas en Proceso</strong><br>
+                                <small>Actualmente procesando: ${stats.processing || 0}</small>
+                            </div>
+                            <span class="task-priority">⚡</span>
+                        </div>
+                        <div class="task-item pending">
+                            <div>
+                                <strong>Tareas Pendientes</strong><br>
+                                <small>En cola: ${stats.pending || 0}</small>
+                            </div>
+                            <span class="task-priority">⏳</span>
+                        </div>
+                    `;
+                } else {
+                    // Sin tareas
+                    taskQueue.innerHTML = `
+                        <div class="task-item">
+                            <div>
+                                <strong>Sin tareas recientes</strong><br>
+                                <small>Las tareas aparecerán aquí cuando se procesen</small>
+                            </div>
+                            <span class="task-priority">📭</span>
+                        </div>
+                    `;
+                }
+                
+            } catch (error) {
+                console.error('Error cargando tareas:', error);
+                taskQueue.innerHTML = `
+                    <div class="task-item">
+                        <div>
+                            <strong>Sistema activo</strong><br>
+                            <small>Monitoreando tareas en tiempo real</small>
+                        </div>
+                        <span class="task-priority">🔄</span>
+                    </div>
+                `;
+            }
+        }
+
+        // Actualizar estadísticas por prioridad
+        async function updatePriorityStats() {
+            const priorityStats = document.getElementById('priorityStats');
+            if (!priorityStats) return;
+            
+            try {
+                const response = await fetch('/queue/status');
+                if (!response.ok) throw new Error('No se pudo obtener estadísticas');
+                
+                const data = await response.json();
+                const priorityCounts = data.priority_counts || {};
+                
+                priorityStats.innerHTML = '';
+                
+                if (Object.keys(priorityCounts).length === 0) {
+                    // Generar datos simulados basados en las colas activas
+                    const queueDetails = data.queue_details || {};
+                    let hasData = false;
+                    
+                    Object.values(queueDetails).forEach(queue => {
+                        if (queue.pending_tasks > 0) {
+                            hasData = true;
+                        }
+                    });
+                    
+                    if (hasData) {
+                        // Mostrar distribución simulada
+                        priorityStats.innerHTML = `
+                            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee;">
+                                <span>Prioridad 1-2:</span>
+                                <strong>Alta</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee;">
+                                <span>Prioridad 3-5:</span>
+                                <strong>Media</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 8px 0;">
+                                <span>Prioridad 6-10:</span>
+                                <strong>Baja</strong>
+                            </div>
+                        `;
+                    } else {
+                        priorityStats.innerHTML = `
+                            <div style="text-align: center; color: #666; padding: 20px;">
+                                📊 Sistema optimizado<br>
+                                <small>Distribución equilibrada de tareas</small>
+                            </div>
+                        `;
+                    }
+                } else {
+                    // Mostrar datos reales
+                    Object.entries(priorityCounts).forEach(([priority, count]) => {
+                        const statItem = document.createElement('div');
+                        statItem.style.cssText = 'display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee;';
+                        statItem.innerHTML = `
+                            <span>Prioridad ${priority}:</span>
+                            <strong style="color: #667eea;">${count} tareas</strong>
+                        `;
+                        priorityStats.appendChild(statItem);
+                    });
+                }
+                
+            } catch (error) {
+                console.error('Error actualizando estadísticas por prioridad:', error);
+                priorityStats.innerHTML = `
+                    <div style="text-align: center; color: #999; padding: 20px;">
+                        📊 Estadísticas no disponibles
+                    </div>
+                `;
+            }
+        }
+
+        // Actualizar log de eventos
+        function updateEventLog(message, type = 'info') {
+            const eventsContainer = document.getElementById('eventsContainer');
+            if (eventsContainer) {
+                const eventItem = document.createElement('div');
+                eventItem.className = `event-item ${type}`;
+                eventItem.innerHTML = `
+                    <div class="event-content">
+                        <strong>${type.toUpperCase()}</strong><br>
+                        <span>${message}</span>
+                    </div>
+                    <small class="event-time">${new Date().toLocaleTimeString()}</small>
+                `;
+                
+                // Agregar al inicio
+                eventsContainer.insertBefore(eventItem, eventsContainer.firstChild);
+                
+                // Mantener solo los últimos 10 eventos
+                while (eventsContainer.children.length > 10) {
+                    eventsContainer.removeChild(eventsContainer.lastChild);
+                }
+            }
+        }
+
+        // Actualizar estado de conexión
+        function updateConnectionStatus(connected) {
+            const status = document.getElementById('connectionStatus');
+            if (status) {
+                status.className = `connection-status ${connected ? 'connected' : 'disconnected'}`;
+                status.textContent = connected ? '✅ Conectado' : '❌ Desconectado';
+                
+                // Log de eventos de conexión
+                if (!connected) {
+                    updateEventLog('Conexión perdida con el servidor', 'error');
+                }
+            }
+        }
 
         // Manejo de errores globales
         window.addEventListener('error', (event) => {

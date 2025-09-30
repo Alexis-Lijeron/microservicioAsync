@@ -18,6 +18,7 @@ python-multipart==0.0.6
 
 # Utilidades básicas
 python-dotenv==1.0.0
+aiohttp==3.9.1
 typing-extensions==4.8.0
 
 # Sistema de colas y concurrencia

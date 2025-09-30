@@ -71,24 +71,24 @@ async def task_worker():
     """
     logger.info("🚀 Iniciando Task Worker...")
     
-    # Crear instancia del manager integrado
-    queue_manager = RedisIntegratedQueueManager()
+    # DESACTIVADO: Worker Redis que interfiere con sistema de asignación exclusiva
+    # queue_manager = RedisIntegratedQueueManager()
+    
+    logger.info("⚠️ Worker Redis DESACTIVADO - Usando solo sistema de asignación exclusiva")
     
     try:
-        # Iniciar el sistema de colas con Redis
-        redis_url = "redis://redis:6379"  # URL para Docker
-        success = await queue_manager.start(max_workers=2, redis_url=redis_url)
+        # SISTEMA DESACTIVADO TEMPORALMENTE
+        success = False  # await queue_manager.start(max_workers=2, redis_url=redis_url)
         
         if not success:
-            logger.error("❌ No se pudo iniciar el worker con Redis")
-            return
+            logger.info("ℹ️ Worker Redis desactivado - Sistema de asignación exclusiva activo")
         
-        logger.info("✅ Worker iniciado correctamente, procesando tareas...")
+        logger.info("✅ Worker desactivado correctamente, usando solo sistema de asignación exclusiva...")
         
-        # Mantener el worker corriendo
+        # Mantener el contenedor corriendo pero sin procesar tareas
         while True:
-            await asyncio.sleep(10)
-            logger.info("💓 Worker activo...")
+            await asyncio.sleep(30)
+            logger.info("� Worker Redis inactivo (sistema de asignación exclusiva activo)...")
             
     except KeyboardInterrupt:
         logger.info("🛑 Worker detenido por usuario")
@@ -96,7 +96,7 @@ async def task_worker():
         logger.error(f"❌ Error en worker: {e}")
     finally:
         # Cleanup
-        queue_manager.stop()
+        # queue_manager.stop()  # Desactivado
         logger.info("🔚 Worker finalizado")
 
 if __name__ == "__main__":
